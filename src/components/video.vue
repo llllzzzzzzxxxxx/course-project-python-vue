@@ -15,11 +15,14 @@
             </div>
         </div>
     </div>
+    <loadingComponet v-if="isLoadingDownload"></loadingComponet>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue';
 import axios from 'axios';
+import useVideoStore from "../stores/video";
+import loadingComponet from "./loading.vue";
 const props = defineProps<{ 
   bvid: string;
   localPath?: string;
@@ -29,6 +32,8 @@ const error = ref(null);
 const videoInfo = ref();
 const imageError = ref(false);
 
+const videoStore = useVideoStore();
+const isLoadingDownload = ref(false);
 const formatDuration = (seconds: number) => {
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
@@ -52,6 +57,7 @@ const fetchVideoInfo = async () => {
             error.value = res.data.message;
         }
     } catch (err) {
+        alert('获取视频信息失败')
         console.error('获取视频信息失败:', err);
     } finally {
         loading.value = false;
@@ -61,6 +67,29 @@ const getProxiedImageUrl = (url:string) => {
   return `http://localhost:5000/proxy-image?url=${encodeURIComponent(url)}` // 本地服务器地址
 }
 
+async function downloadVideo(bvid:string) {
+    isLoadingDownload.value = true;
+    console.log(bvid)
+    try {
+      // 1. 触发视频处理
+      const response = await axios.post(
+        'http://localhost:5000/api/video',
+        { 
+          bvid: bvid
+         },
+      );
+      console.log(response)
+      let local = response.data.download_url.replace(/\\/g, '/') // 将反斜杠替换为斜杠
+      videoStore.videoMap.set(bvid, local);
+      alert('下载成功')
+      return response.data;
+    } catch (error) {
+      console.error('视频处理失败:', error);
+      throw error;
+    } finally {
+      isLoadingDownload.value = false;
+    }
+  }
 const showToast = ref(false);
 const toastMessage = ref('');
 
@@ -77,6 +106,8 @@ const openVideo = async () => {
       showToast.value = true;
       setTimeout(() => showToast.value = false, 1500);
     }
+  }else{
+    downloadVideo(props.bvid)
   }
 };
 
@@ -92,7 +123,7 @@ watch(() => props.bvid, (newBvid) => {
 <style scoped>
 .video-card {
     width: 250px;
-    border-radius: 8px;
+    border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     margin: 16px;
@@ -125,7 +156,8 @@ watch(() => props.bvid, (newBvid) => {
     opacity: 0;
 }
 .pic{
-    width: 100%;
+    width: 226px;
+    height: 146px;
 }
 .loading,
 .error {

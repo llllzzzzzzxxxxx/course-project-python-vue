@@ -13,9 +13,11 @@
         </button>
       </div>
       <Loading v-if="isLoading" />
-      <div v-if="videoStore.videoMap!=null" class="videoList">
-        <div v-for="[bvid, path] in videoStore.videoMap.entries()" :key="bvid">
-          <Video :bvid="bvid" :local-path="path"></Video>
+      <div v-if="videoStore.videoMap!=null" class="videoList-container">
+        <div  class="videoList" v-for="[bvid, path] in videoStore.videoMap.entries()" :key="bvid">
+          <div class="video-card-container">
+            <Video :bvid="bvid" :local-path="path"></Video>
+          </div>
         </div>
     </div>
     </div>
@@ -65,8 +67,11 @@
     line-height: 1.5;
     max-height: 100vh;
   }
-  .videoList{
-    display: flex;
+  .video-list {
+   display: inline-flex;
+   flex-wrap: wrap;
+   gap: 20px;
+   margin: 20px 30px;
   }
   .search-container {
     display: flex;
@@ -158,5 +163,40 @@
       padding: 1rem 0;
       margin-top: 1rem;
     }
+  }
+  .video-card-container {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .tooltip {
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #333;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 100;
+  }
+  
+  .tooltip:after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #333 transparent transparent transparent;
+  }
+  .videoList-container{
+   display: inline-flex;
+   flex-wrap: wrap;
+   gap: 20px;
+   margin: 20px 30px;
   }
   </style>

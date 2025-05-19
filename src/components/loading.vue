@@ -2,7 +2,7 @@
   <div class="loading-mask">
     <div class="loading-content">
       <div class="spinner"></div>
-      <span>视频处理中...</span>
+      <span>视频下载中...</span>
     </div>
   </div>
 </template>
@@ -24,6 +24,7 @@
 }
 
 .loading-content {
+  color: black;
   text-align: center;
 }
 
